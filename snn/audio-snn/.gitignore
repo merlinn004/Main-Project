@@ -1,0 +1,11 @@
+Audio_Song_Actors_01-24/
+Audio_Speech_Actors_01-24/
+__pycache__/
+Audio_Speech_Actors_01-24.zip
+Audio_Song_Actors_01-24.zip
+cached_dataset.pt
+checkpoints/
+snn.db
+mlruns/
+snn_optuna.db
+persistent-terminals.log

@@ -1,0 +1,458 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{lipsum}
+
+% Theme configuration
+\usetheme{CambridgeUS}  % Changed theme from Madrid to CambridgeUS
+\usecolortheme{dolphin} % Applied a different color scheme
+
+% Title slide configuration
+\title{SentiCore}
+\subtitle{An emotionally intelligent AI that listens, learns, and responds with real empathy }
+\author{}
+\date{}
+
+\begin{document}
+
+% Title Slide
+\begin{frame}
+    \vspace{1cm}
+    \titlepage
+    \subtitle
+    \vfill
+    \begin{columns}[t]
+        \begin{column}{0.5\textwidth}
+            \begin{flushleft}
+                \textbf{Guide Name} \\ 
+                Ms.\ Philo Sumi \\ 
+                Assistant Professor\\
+                Department of AIDS
+            \end{flushleft}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{flushright}\small
+                \textbf{Team 11 (Batch 1) :}\\[0.5ex]
+                Marc George\,(MUT22CA043)\\ 
+                Merlin Sarah Jiju\,(MUT22CA045)\\
+                Timon K.\ John\,(MUT22CA068)\\[1ex]
+            \end{flushright}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+
+% Contents Slide
+\begin{frame}{Contents}
+    \begin{enumerate}
+        \item Problem Statement
+        \item Objective
+        \item Literature Survey
+        \item Proposed System
+        \item Modules
+        \item Advantages of Proposed System
+        \item Software Requirements
+        \item Project Planning
+        \item Task Allocation
+        \item Conclusion
+        \item References
+    \end{enumerate}
+\end{frame}
+
+%Problem Statement
+\begin{frame}{Problem Statement}
+   \frametitle{ Problem Statement }
+       \tem\textbf{Problem}
+       \item Traditional emotion-aware AI systems merely detect human affect from text, audio, or vision,
+       but they do not internally simulate or evolve emotional states over time. They lack temporal memory, contextual empathy modeling, and generate only reactive outputs, resulting in one-dimensional, non-adaptive interactions. This limitation prevents such systems from maintaining a coherent emotional “persona” that can learn from past interactions and adjust its responses in future conversations.
+       \item\textbf{Solution}
+       \item \textbf{SentiCore, An emotionally intelligent AI that listens, learns, and responds with real empathy} 
+\end{frame}
+        
+
+
+% Objective Slide
+\begin{frame}{Objective}
+    \begin{itemize}
+        \item The objective of this project is to build an emotionally intelligent AI system that doesn't just recognize emotions ,it actually feels and evolves its emotional state over time, like a human would.
+        \item The system integrates  brain-inspired models called Spiking Neural Networks (SNNs),  processes speech tone, facial expressions, and text sentiment to understand how a person feels.
+        \item It then uses that understanding to generate emotionally appropriate, empathetic responses — not just one-time replies, but ones that take into account the past conversation and adjust over time.
+        
+        \item To create an emotionally intelligent agent capable of supporting applications such as digital companions, mental health assistants, and adaptive tutors.
+    \end{itemize}
+\end{frame}
+
+% Literature Survey Slide 1
+\begin{frame}
+    \frametitle{Existing System and Literature Survey}
+    \renewcommand{\arraystretch}{1.5} % Increases row height for better spacing
+    \setlength{\tabcolsep}{8pt} % Adjusts column spacing for better readability
+    \begin{table}[]
+        \centering
+        \resizebox{\textwidth}{!}{
+        \begin{tabular}{|p{4cm}|p{6cm}|p{4cm}|p{4cm}|p{4cm}|}
+            \hline
+            \rowcolor{} \textbf{Title} & \textbf{Summary} & \textbf{Technology Used} & \textbf{Advantages} & \textbf{Disadvantages} \\ \hline
+            \textbf{ F. Ye, H. Gao, L. Yang, M. Li, J. Wu, and D. Liu, “EESCN: A novel spiking neural network method for EEG-based emotion recognition”, (2024)} & The paper Proposes EESCN, a hybrid CNN-SNN model that converts EEG data into neuromorphic 2D frames for emotion classification. Tested on DEAP and SEED-IV datasets.& EEG to neuromorphic frames, CNN + Spiking Neurons, NeuroSpiking framework, Parameter optimization .  & High accuracy, 3× faster inference, captures global and local features, low memory use. &  Limited to two datasets, Lacks testing on unseen subjects, No deep comparison with newer LLMs.  
+            \\ \hline
+            \textbf{Rebecca Mobbs, Dimitrios Makris, Vasileios Argyriou :"Emotion Recognition and Generation: A Comprehensive Review of Face, Speech, and Text Modalities",(2025)} &Survey on emotion recognition and generation across face, speech, and text; covers preprocessing, datasets, metrics, and future trends. & CNNs, LSTM, BiLSTM, Transformers, BERT, GANs, Diffusion, CLIP, Attention, PromptVC, Style Encoders, LLMs (GPT-4, LLaMA), PPLM. & Covers recognition and generation; multimodal; state-of-the-art models; includes evaluation and ethics& No standard benchmarks; high compute demand; misuse risk; emotion control unresolved.\\ \hline
+            
+        \end{tabular}
+        }
+        \caption{Literature Survey}
+    \end{table}
+\end{frame}
+
+% Literature Survey Slide 2
+\begin{frame}
+    \frametitle{Existing System and Literature Survey}
+    \renewcommand{\arraystretch}{1.5}
+    \setlength{\tabcolsep}{8pt}
+    \begin{table}[]
+        \centering
+        \resizebox{\textwidth}{!}{
+        \begin{tabular}{|p{4cm}|p{6cm}|p{4cm}|p{4cm}|p{4cm}|}
+            \hline
+            \rowcolor{} \textbf{Title} & \textbf{Summary} & \textbf{Technology Used} & \textbf{Advantages} & \textbf{Disadvantages} \\ \hline
+            \textbf{Mohammed Kayed, Rebeca P. Díaz‑Redondo, Alhassan Mabrouk, “Deep Learning-based Sentiment Classification: A Comparative Survey,” (2021)} & Comparative review of deep learning models for sentiment classification across text, image, and multimodal data; categorizes models (DNN, CNN, RNN, attention-based) and discusses performance, datasets, and trends. & DNN, CNN, RNN, LSTM, GRU, Attention, Transformers (BERT, RoBERTa), Multimodal Fusion, Hybrid Models.  & Broad coverage of architectures; cross-domain comparison; benchmark datasets; highlights trends and applications. & High computational cost; limited interpretability; depends on large labeled data; weak on sarcasm, negation, domain shifts. \\ \hline
+            \textbf{“Yuling Luo, Qiang Fu, Juntao Xie, Yunbai Qin, Guopei Wu, Junxiu Liu, Frank Jiang, Yi Cao, Xuemei Ding, “EEG-Based Emotion Classification Using Spiking Neural Networks,”(2020)} &Proposes SNN-based framework for EEG emotion classification using DEAP dataset; encodes EEG into spike trains and applies convolutional SNN for valence-arousal classification. &EEG processing, DEAP dataset, SNNs, Poisson encoding, Convolutional SNN, STDP learning. & Energy-efficient; biologically plausible; robust to noisy EEG; suitable for low-power edge devices. &Complex preprocessing; immature SNN training; sensitive to parameters; limited scalability for high-resolution data. \\ \hline
+            
+        \end{tabular}
+        }
+        \caption{Literature Survey}
+    \end{table}
+\end{frame}
+
+% Literature Survey Slide 3
+\begin{frame}
+    \frametitle{Existing System and Literature Survey}
+    \renewcommand{\arraystretch}{1.5}
+    \setlength{\tabcolsep}{8pt}
+    \begin{table}[]
+        \centering
+        \resizebox{\textwidth}{!}{
+        \begin{tabular}{|p{4cm}|p{6cm}|p{4cm}|p{4cm}|p{4cm}|}
+            \hline
+            \rowcolor{} \textbf{Title} & \textbf{Summary} & \textbf{Technology Used} & \textbf{Advantages} & \textbf{Disadvantages} \\ \hline
+            \textbf{A. Sam , R. Boostani , S. Hashempour , M. Taghavi, and S. Sanei, “Depression Identification Using EEG Signals via a Hybrid of LSTM and Spiking Neural Networks,” (2023)}&Proposes LSTM–SNN hybrid model for EEG-based depression detection using MODMA dataset; EEG encoded to spikes via Poisson encoding; LSTM extracts temporal features, SNN handles energy-efficient classification. &EEG processing, MODMA dataset, LSTM, SNN, Poisson encoding, Convolutional SNN. &Combines LSTM’s temporal learning with SNN’s efficiency; higher accuracy for depression detection; suitable for wearable/portable use. &High training complexity; difficult LSTM–SNN synchronization; less robust to noise and subject variability.  \\ \hline
+            \textbf{R. K. Chunduri and D. G. Perera, “Neuromorphic Sentiment Analysis Using Spiking Neural Networks,”(2023)} &Sentiment analysis via ANN-to-SNN conversion on SpiNNaker hardware, achieving 100\% accuracy on IMDB with reduced energy use. & SNNs, ANN-to-SNN conversion, SpiNNaker hardware, IMDB dataset & Energy efficient, Real-time, Outperforms ANN, Novel approach & Limited dataset, Complex SNN training, Small-scale testing, Hardware-specific. \\ \hline
+
+        \end{tabular}
+        }
+        \caption{Literature Survey}
+    \end{table}
+\end{frame}
+
+% Literature Survey Slide 4
+\begin{frame}
+    \frametitle{Existing System and Literature Survey}
+    \renewcommand{\arraystretch}{1.5}
+    \setlength{\tabcolsep}{8pt}
+    \begin{table}[]
+        \centering
+        \resizebox{\textwidth}{!}{
+        \begin{tabular}{|p{4cm}|p{6cm}|p{4cm}|p{4cm}|p{4cm}|}
+            \hline
+            \rowcolor{} \textbf{Title} & \textbf{Summary} & \textbf{Technology Used} & \textbf{Advantages} & \textbf{Disadvantages} \\ \hline
+            \textbf{G. Udahemuka, K. Djouani, and A. M. Kurien, “Multimodal Emotion Recognition Using Visual, Vocal and Physiological Signals: A Review,” (2024)} & Reviews multimodal emotion recognition combining visual, vocal, and physiological signals, highlighting deep learning and fusion methods. & CNN, LSTM, 3D-CNN, EEG, ECG, EMG Visual and speech signals, Fusion techniques  & High accuracy,captures micro-expressions,useful in HCI, healthcare, security & Limited datasets, noise sensitivity,cultural/context bias,poor generalization \\ \hline
+            \textbf{J. Seekings, P. Chandarana, M. Ardakani, M. R. Mohammadi, and R. Zand, “Towards Efficient Deployment of Hybrid SNNs on Neuromorphic and Edge AI Hardware,”(2024)} &Proposes hybrid SNN-ANN models trained with PyTorch and Lava, deployed on Intel Loihi (SNN) and Jetson Nano (ANN). Shows reduced energy and latency with few spiking layers while maintaining accuracy. &Hybrid SNN-ANN,PyTorch and Lava,Intel Loihi,NVIDIA Jetson Nano,DVS Gesture dataset. & Lower energy use, Unified training, Real hardware deployment, Balances accuracy and efficiency. &Communication cost not measured, Hardware-dependent, Accuracy drops with more spiking layers, Limited dataset. \\ \hline
+            
+        \end{tabular}
+        }
+        \caption{Literature Survey}
+    \end{table}
+\end{frame}
+
+% Literature Survey Slide 5
+\begin{frame}
+    \frametitle{Existing System and Literature Survey}
+    \renewcommand{\arraystretch}{1.5}
+    \setlength{\tabcolsep}{8pt}
+    \begin{table}[]
+        \centering
+        \resizebox{\textwidth}{!}{
+        \begin{tabular}{|p{4cm}|p{6cm}|p{4cm}|p{4cm}|p{4cm}|}
+            \hline
+            \rowcolor{} \textbf{Title} & \textbf{Summary} & \textbf{Technology Used} & \textbf{Advantages} & \textbf{Disadvantages} \\ \hline
+            \textbf{A. Bittar and P. N. Garner, “Surrogate Gradient Spiking Neural Networks as Encoders for Large Vocabulary Continuous Speech Recognition,” (2023)} & Tests surrogate gradient SNNs as replacements for LSTMs in speech recognition. On TIMIT and LibriSpeech, SNNs maintain near-LSTM accuracy with fewer parameters and avoid exploding gradients. &Surrogate gradient SNNs, LIF neuron model, PyTorch, SpeechBrain, TIMIT dataset, LibriSpeech dataset.  &Energy-efficient, Robust to exploding gradients, Comparable to LSTM on LVCSR, Fewer parameters. &Slight accuracy drop vs. LSTM, Needs hybrid models for best performance, Not state-of-the-art, High training cost. \\ \hline
+            \textbf{W. Fang et al., “SpikingJelly: An Open-Source Machine Learning Infrastructure Platform for Spike-Based Intelligence,”(2023)} &Presents SpikingJelly, a PyTorch-based framework for SNNs with APIs, dataset support, CUDA acceleration, and neuromorphic hardware deployment; achieves up to 11× speedup.&SpikingJelly framework, PyTorch backend, CUDA acceleration, Neuromorphic datasets (N-MNIST, DVS Gesture, CIFAR10-DVS), Intel Loihi, Lynxi chips. & High simulation efficiency, Full-stack support, Easy PyTorch integration, Widely adopted in SNN research. &Requires PyTorch knowledge, Still maturing vs. ANN frameworks, High GPU demand, Limited hardware support. \\ \hline
+            
+        \end{tabular}
+        }
+        \caption{Literature Survey}
+    \end{table}
+\end{frame}
+
+% Literature Survey Slide 6
+\begin{frame}
+    \frametitle{Existing System and Literature Survey}
+    \renewcommand{\arraystretch}{1.5}
+    \setlength{\tabcolsep}{8pt}
+    \begin{table}[]
+        \centering
+        \resizebox{\textwidth}{!}{
+        \begin{tabular}{|p{4cm}|p{6cm}|p{4cm}|p{4cm}|p{4cm}|}
+            \hline
+            \rowcolor{} \textbf{Title} & \textbf{Summary} & \textbf{Technology Used} & \textbf{Advantages} & \textbf{Disadvantages} \\ \hline
+            \textbf{Ma, H., Zhang, B., Xu, B., Wang, J., Lin, H., Sun, X. "Empathy Level Alignment via Reinforcement Learning for Empathetic Response Generation,” (2024)} & Introduces EmpRL, an RL-based framework for empathetic dialogue generation. Uses pre-trained T5 as generator, fine-tuned with PPO and an empathy reward function (emotional reaction, interpretation, exploration) to align generated and target empathy levels. &Reinforcement Learning (PPO), T5 model, Pre-trained empathy identifiers, Empathy reward function.  &Enhances response quality, Aligns empathy levels with human responses, Covers affective and cognitive empathy dimensions. &Requires pre-trained empathy identifiers, High computational cost, Dependent on reward function quality. \\ \hline
+            \textbf{Yamazaki, K., Vo-Ho, V.-K., Bulsara, D., Le, N., “Spiking Neural Networks and Their Applications: A Review” (2022)} & Comprehensive survey of SNNs: neuron/synapse models, training (surrogates, STDP, conversion), frameworks, and applications in vision/robotics with neuromorphic hardware perspectives.  & HH, LIF, Izhikevich, AdEx; STDP/R-STDP, SpikeProp, SuperSpike, SLAYER; ANN-to-SNN; encoding (rate/temporal); toolkits (Nengo, Brian2, SNN Toolbox); Loihi, SpiNNaker. & Broad, structured coverage; links biology to ML; practical guidance on training and deployment; highlights energy efficiency and temporal processing.  & Training remains hard (non-differentiability, latency-timestep tradeoffs); limited large-scale benchmarks vs. ANNs; hardware/software fragmentation.  \\ \hline
+            
+        \end{tabular}
+        }
+        \caption{Literature Survey}
+    \end{table}
+\end{frame}
+
+% Literature Survey Slide 7
+\begin{frame}
+    \frametitle{Existing System and Literature Survey}
+    \renewcommand{\arraystretch}{1.5}
+    \setlength{\tabcolsep}{8pt}
+    \begin{table}[]
+        \centering
+        \resizebox{\textwidth}{!}{
+        \begin{tabular}{|p{4cm}|p{6cm}|p{4cm}|p{4cm}|p{4cm}|}
+            \hline
+            \rowcolor{} \textbf{Title} & \textbf{Summary} & \textbf{Technology Used} & \textbf{Advantages} & \textbf{Disadvantages} \\ \hline
+            \textbf{Martinez-Navarro, J.A. et al., “Comparison of Neural Networks for Emotion Detection” (2023)} & Compares SNN, CNN, and MLP for audio emotion recognition on EmoDB, SAVEE, RAVDESS; CNN achieves highest accuracy, MLP moderate, SNN lowest due to lack of encoder and training complexity.  & Mel-spectrogram features; CNN with conv/pooling/BN and dense layers; MLP with 8 hidden layers; SNN with Izhikevich neurons and DE/PSO/COSA optimization; datasets: EmoDB, SAVEE, RAVDESS.  & Clear benchmarking across models; shows CNN feature-extraction strength; highlights SNN hardware potential and compactness.  & SNN accuracy/training time limitations without encoder; small, imbalanced datasets; high data need for CNN; limited SNN tooling.  \\ \hline
+            \textbf{Alzhrani, W., Doborjeh, M., Doborjeh, Z., Kasabov, N., “Emotion Recognition and Understanding Using EEG Data in a Brain-Inspired SNN Architecture” (2021)} & Uses NeuCube BI-SNN with STDP + deSNN to classify EEG-based emotions; achieves 94.83 percent on four emotions and 83.5 percent positive vs. negative, outperforming MLP/RBF/MLR; provides brain-region interpretability.  & NeuCube 3D SNN reservoir; TBR spike encoding; SW connectivity; STDP unsupervised learning; deSNN supervised classifier; DREAMER EEG (14 channels, 23 subjects).  & High accuracy with EEG; interpretable neural connectivity and regional activation patterns; end-to-end spatio-temporal modelling.  & Requires parameter grid search; dataset size limited; specialized framework dependency.  \\ \hline
+        \end{tabular}
+        }
+        \caption{Literature Survey}
+    \end{table}
+\end{frame}
+
+% Literature Survey Slide 8
+\begin{frame}
+    \frametitle{Existing System and Literature Survey}
+    \renewcommand{\arraystretch}{1.5}
+    \setlength{\tabcolsep}{8pt}
+    \begin{table}[]
+        \centering
+        \resizebox{\textwidth}{!}{
+        \begin{tabular}{|p{4cm}|p{6cm}|p{4cm}|p{4cm}|p{4cm}|}
+            \hline
+            \rowcolor{} \textbf{Title} & \textbf{Summary} & \textbf{Technology Used} & \textbf{Advantages} & \textbf{Disadvantages} \\ \hline
+            \textbf{Wang, J., “A Review of Spiking Neural Networks” (2022)} & Intro review on neuron models, coding, learning, and neuromorphic platforms; contrasts bio-mimicry vs. compute cost; advocates mixed coding and unsupervised learning.  & Models (HH, LIF, Izhikevich); coding (rate, temporal, population, AER); learning (Hebb, STDP, SpikeProp, ReSuMe, ANN-to-SNN); platforms (Neurogrid, DYNAPS, TrueNorth, BrainScaleS, SpiNNaker, Loihi). & Clear comparison of models/coding; practical platform overview; emphasizes energy-efficient, event-driven computing.  & High-level; limited experimental results; notes BP weight-transport issue and STDP limits for deep multilayer training. \\ \hline
+            
+            
+        \end{tabular}
+        }
+        \caption{Literature Survey}
+    \end{table}
+\end{frame}
+            
+            
+
+
+
+
+
+% Proposed System Slide 1
+\begin{frame}
+    \frametitle{Proposed System}  
+    \begin{itemize}
+        \item The proposed system converts inputs  like tone of voice and the emotional meaning of text into synchronized spike patterns using a neuromorphic-inspired encoding approach and feature extraction.
+        \item A spiking neural core then integrates these spike patterns over time, simulating a continuously evolving emotional state.
+        \item An affective appraisal module compares incoming patterns with learned emotional examples to decide whether to reflect the user's feelings or respond with supportive guidance.
+        \item Finally, the current state of the spiking network, along with the appraisal result, guides a language model to generate responses that are both meaningful and emotionally appropriate.
+    \end{itemize}
+\end{frame}
+
+% Modules Slide
+\begin{frame}
+    \frametitle{Modules}
+    \begin{itemize}
+        \item \textbf{Data Preprocessing Module}
+        \begin{itemize}
+            \item Cleans and normalizes raw text data and converts audio signals into MFCC (Mel-Frequency Cepstral Coefficients).
+        \end{itemize}
+        \item \textbf{Spike Generation Module}
+        \begin{itemize}
+            \item Transforms preprocessed text and audio features into spike trains for SNN input.
+        \end{itemize}
+        \item \textbf{Audio Classification Module}
+        \begin{itemize}
+            \item Classifies audio-derived spike patterns into emotion categories using SNNs and detects emotion states.
+        \end{itemize}
+        \item \textbf{Text Classification Module}
+        \begin{itemize}
+            \item Processes cleaned text data through spiking/ANN hybrid layers and classifies emotional sentiment expressed in textual input.
+        \end{itemize}
+        \item \textbf{User Interface (UI) Module}
+        \begin{itemize}
+            \item Web-based interface (React/Node.js) enabling real-time user interaction with the system.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+
+
+% % Proposed System Slide 2
+% \begin{frame}
+%     \frametitle{Proposed System}
+%     \begin{itemize}
+%       \item \textbf{Hand Written Character Recognition}  
+%         \begin{itemize}
+%             \item AI model analyzes handwritten Malayalam characters and provides accuracy feedback.
+%             \item Assists users in improving handwriting through visual guidance and corrections.
+%         \end{itemize}
+
+%         \item \textbf{Malayalam Word Learning }
+%         \begin{itemize}
+%             \item Displays Malayalam words and meanings for enhanced vocabulary building.
+%             \item Provides pronunciation assistance for better spoken language proficiency.
+%         \end{itemize}
+
+%         \item \textbf{Sentence Translation and Contextual Learning}  
+%         \begin{itemize}
+%             \item Provides pronunciation assistance for better spoken language proficiency.
+%             \item Offers context-based examples to help users understand sentence structures.
+%         \end{itemize}
+%         \item \textbf{Image-based Text Recognition}  
+%         \begin{itemize}
+%             \item AI-powered OCR extracts Malayalam text from images.
+%             \item Translates text into English to assist in reading comprehension.
+%         \end{itemize}
+%         \item \textbf{Scalability and Adaptability}  
+%         \begin{itemize}
+%             \item Suitable for students, language learners, and non-native speakers.
+%             \item Scalable to incorporate advanced features such as voice recognition and AI-driven personalized learning paths for a more immersive and adaptive learning experience.
+%         \end{itemize}
+        
+            
+%     \end{itemize}
+% \end{frame}
+
+% Advantages Slide
+\begin{frame}
+    \frametitle{Advantages of the Proposed System}
+    \begin{itemize}
+        \item \textbf{Multimodal Input}
+        \begin{itemize}
+            \item Includes speech tone and text sentiment into the model for richer emotion understanding.
+        \end{itemize}
+        \item \textbf{Neuromorphic Emotion Reasoning}
+        \begin{itemize}
+            \item Helps the model understand, feel, and reason about human emotions using brain-like spikes and signals that mimic how we recognize emotions.
+        \end{itemize}
+        \item \textbf{Evolving Emotional Memory}
+        \begin{itemize}
+            \item Simulates a continuously changing mood that builds on past interactions for more coherent replies.
+        \end{itemize}
+        \item \textbf{Adaptive Empathy}
+        \begin{itemize}
+            \item Learns when to mirror your feelings or offer comfort by adjusting its behavior based on feedback.
+        \end{itemize}
+        \item \textbf{Emotion‑Driven Responses}
+        \begin{itemize}
+            \item Uses its internal mood state to guide the chatbot so responses feel consistent and empathetic.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+
+
+% Software / Hardware Requirements Slide
+\begin{frame}
+    \frametitle{Software Requirements}
+    \begin{itemize}
+        \item \textbf{Python} — Core language for SNN modeling, data processing, and API services.
+        \item \textbf{PyTorch} — Deep learning framework powering surrogate‑gradient training of spiking networks.
+        \item \textbf{SpikingJelly/SNNTorch} — High‑performance library for building and training LIF‑based SNN layers on GPU.
+        \item \textbf{openSMILE} — Toolkit for extracting audio emotion features from speech.
+        \item \textbf{Hugging Face Transformers} — Pretrained GPT‑style models for generative, tone‑conditioned text output.
+        \item \textbf{LangChain} — Orchestrates multimodal pipelines, chaining SNN state vectors into LLM prompts.
+        \item \textbf{BindsNET} — Reinforcement‑learning library for shaping empathy behaviors via reward feedback.
+    \end{itemize}
+\end{frame}
+
+% Project Planning slide
+\begin{frame}
+    \frametitle{Project Planning}
+    \centering
+    \includegraphics[width=0.4\textwidth]{Gantt_Chart_Planning.png}
+\end{frame}
+
+% Task Allocation
+\begin{frame}
+    \frametitle{ Task Allocation}
+    \begin{itemize}
+        \item \textbf{Marc George} –  Working on the \textbf{Audio Emotion Recognition pipeline}, including MFCC feature extraction, spike generation, and SNN-based classification; also contributes to the literature survey.
+        
+        \item \textbf{Merlin Sarah Jiju} – Handling \textbf{Data Analysis \& Preprocessing}, lead \textbf{Frontend } (React/Node.js), and prepare \textbf{documentation} alongside literature survey contributions.
+        \item \textbf{Timon K. John} – Developing the \textbf{Text Emotion Recognition module} (text preprocessing + hybrid classification) and implement the \textbf{Backend Services} for system integration.
+    \end{itemize}
+\end{frame}
+
+
+
+
+
+% Conclusion Slide
+\begin{frame}
+    \frametitle{Conclusion}
+    \begin{itemize}
+        \item SentiCore introduces a neuromorphic, spike‑based core that includes speech and text into a single emotional stream.  
+        \item Its SNN model yields a self‑evolving “mood,” enabling more coherent, persona‑driven dialogue.  
+        \item An RL‑trained appraisal module dynamically chooses between empathetic mirroring and supportive guidance.  
+        \item Conditioning a GPT‑style generator on the SNN’s state produces responses that are both contextually relevant and emotionally resonant.  
+        \item SentiCore offers an explainable, adaptive framework for digital companions, tutors, and mental‑health assistants.  
+    \end{itemize}
+\end{frame}
+
+
+% References Slide
+\begin{frame}
+    \frametitle{References}
+    \begin{itemize}
+ \item  F. Ye, H. Gao, L. Yang, M. Li, J. Wu, and D. Liu,“EESCN: A novel spiking neural network method for EEG-based emotion recognition”,2024.
+ \item Rebecca Mobbs, Dimitrios Makris, Vasileios Argyriou,“Emotion Recognition and Generation: A Comprehensive Review of Face, Speech, and Text Modalities,” 2025.
+ \item Mohammed Kayed, Rebeca P. Díaz‑Redondo, Alhassan Mabrouk,"Deep Learning-based Sentiment Classification: A Comparative Survey" , 2021.
+  \item Yuling Luo, Qiang Fu, Juntao Xie, Yunbai Qin, Guopei Wu, Junxiu Liu, Frank Jiang, Yi Cao, Xuemei Ding,"EEG-Based Emotion Classification Using Spiking Neural Networks", 2020.
+ \item A. Sam , R. Boostani , S. Hashempour , M. Taghavi, and S. Sanei,"Depression Identification Using EEG Signals via a Hybrid of LSTM andSpiking Neural Networks", 2023.
+    \end{itemize}
+\end{frame}
+
+% ----------------- References Slide 2 -----------------
+\begin{frame}
+    \frametitle{References (contd.)}
+    \begin{itemize}
+        \item R. K. Chunduri and D. G. Perera, ``Neuromorphic Sentiment Analysis Using Spiking Neural Networks,'' 2023.
+        
+        \item G. Udahemuka, K. Djouani, and A. M. Kurien, ``Multimodal Emotion Recognition Using Visual, Vocal and Physiological Signals: A Review,'' 2024.
+        
+        \item J. Seekings, P. Chandarana, M. Ardakani, M. R. Mohammadi, and R. Zand, ``Towards Efficient Deployment of Hybrid SNNs on Neuromorphic and Edge AI Hardware,'' 2024.
+        
+        \item A. Bittar and P. N. Garner, ``Surrogate Gradient Spiking Neural Networks as Encoders for Large Vocabulary Continuous Speech Recognition,'' 2023.
+        
+        \item W. Fang et al., ``SpikingJelly: An Open-Source Machine Learning Infrastructure Platform for Spike-Based Intelligence,'' 2023.
+    \end{itemize}
+\end{frame}
+
+% ----------------- References Slide 3 -----------------
+\begin{frame}
+    \frametitle{References (contd.)}
+    \begin{itemize}
+        \item H. Ma, B. Zhang, B. Xu, J. Wang, H. Lin, and X. Sun, ``Empathy Level Alignment via Reinforcement Learning for Empathetic Response Generation,'' 2024.
+        
+        \item K. Yamazaki, V.-K. Vo-Ho, D. Bulsara, and N. Le, ``Spiking Neural Networks and Their Applications: A Review,'' 2022.
+        
+        \item J. A. Martinez-Navarro et al., ``Comparison of Neural Networks for Emotion Detection,'' 2023.
+        
+        \item W. Alzhrani, M. Doborjeh, Z. Doborjeh, and N. Kasabov, ``Emotion Recognition and Understanding Using EEG Data in a Brain-Inspired SNN Architecture,'' 2021.
+        
+        \item J. Wang, ``A Review of Spiking Neural Networks,'' 2022.
+    \end{itemize}
+\end{frame}
+
+
+% Thank You Slide
+\begin{frame}
+    \begin{center}
+        \Large \textbf{Thank You!}
+    \end{center}
+\end{frame}
+
+\end{document}
