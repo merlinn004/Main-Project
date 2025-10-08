@@ -1,0 +1,4 @@
+[core]
+    remote = localremote
+['remote "localremote"']
+    url = C:\Users\Marc\Desktop\Programming\DVC_STORAGE\main_project
