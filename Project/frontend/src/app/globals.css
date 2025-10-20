@@ -1,4 +1,15 @@
 @import "tailwindcss";
+
+:root {
+  --color-secondary-blue: #94affa; /* pastel blue */
+  --color-secondary-purple:   #b393f7; /* lavender purple */
+}
+
+@layer utilities {
+  .bg-gradient-secondary {
+    @apply bg-gradient-to-br from-[var(--color-secondary-blue)] to-[var(--color-secondary-purple)];
+  }
+}
 /* 
 :root {
   --background: #ffffff;
