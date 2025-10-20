@@ -1,0 +1,24 @@
+{
+  "python.terminal.activateEnvironment": false,
+  "terminal.integrated.profiles.windows": {
+    "Anaconda Prompt": {
+      "path": "C:\\Windows\\System32\\cmd.exe",
+      "args": [
+        "/K",
+        "C:\\Users\\Marc\\anaconda3\\Scripts\\activate.bat"
+      ]
+    },
+    "Anaconda PowerShell": {
+      "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "args": [
+        "-ExecutionPolicy",
+        "Bypass",
+        "-NoExit",
+        "-Command",
+        "& 'C:\\Users\\Marc\\anaconda3\\shell\\condabin\\conda-hook.ps1' ; conda activate 'base'"
+      ]
+    }
+  },
+  "terminal.integrated.defaultProfile.windows": "Command Prompt",
+  "python.terminal.activateEnvInCurrentTerminal": true
+}

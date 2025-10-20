@@ -1,1 +1,8 @@
 persistent-terminals.log
+snn/multimodal-snn/data/*
+snn/multimodal-snn/src/data_pipeline_helper_functions/__pycache__/*
+snn/multimodal-snn/src/load_labels/__pycache__/*
+snn/multimodal-snn/src/model_training/__pycache__/*
+snn/multimodal-snn/src/feature_extraction/__pycache__/*
+snn/multimodal-snn/src/load_dataset/__pycache__/*
+
