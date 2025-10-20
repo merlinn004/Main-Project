@@ -9,6 +9,12 @@
   .bg-gradient-secondary {
     @apply bg-gradient-to-br from-[var(--color-secondary-blue)] to-[var(--color-secondary-purple)];
   }
+  .bg-secondary-purple {
+    @apply bg-[var(--color-secondary-purple)];
+  }
+  .bg-secondary-blue {
+    @apply bg-[var(--color-secondary-blue)];
+  }
 }
 /* 
 :root {

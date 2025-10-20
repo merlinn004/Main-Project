@@ -181,7 +181,7 @@ export default function Home() {
                           className="flex items-start space-x-3 opacity-0 animate-[fadeSlideIn_0.6s_ease-out_forwards]"
                           style={{ animationDelay: `${index * 0.02}s` }}
                         >
-                          <div className="w-8 h-8 bg-gradient-to-br from-[var(--color-secondary-blue)] to-[var(--color-secondary-purple)] rounded-full flex-shrink-0"></div>
+                          <div className="w-8 h-8 bg-secondary-purple rounded-full flex-shrink-0"></div>
                           <div className="flex flex-col space-y-1 max-w-lg">
                             <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
                               <p className="text-sm text-gray-800">
@@ -227,7 +227,7 @@ export default function Home() {
                               {message.time}
                             </span>
                           </div>
-                          <div className="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex-shrink-0"></div>
+                          <div className="w-8 h-8 bg-secondary-blue rounded-full flex-shrink-0"></div>
                         </div>
                       )
                     )}
