@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import AudioPlayer, { RHAP_UI } from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
+import axios from "axios";
 
 interface Message {
   id: number;
@@ -12,10 +13,13 @@ interface Message {
   time: string;
 }
 
+const API_BASE_URL = "http://127.0.0.1:8000";
+
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isRecording, setIsRecording] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -45,8 +49,9 @@ export default function Home() {
     setMessages([initialMessage]);
   }, []);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
+    
     const userMessage: Message = {
       id: idCounter.current++,
       sender: "user",
@@ -58,19 +63,38 @@ export default function Home() {
     };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setIsLoading(true);
 
-    setTimeout(() => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/chat`, {
+        message: userMessage.text,
+      });
+
       const botMessage: Message = {
         id: idCounter.current++,
         sender: "bot",
-        text: "Ok",
+        text: response.data.response || "Ok",
         time: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
         }),
       };
       setMessages((prev) => [...prev, botMessage]);
-    }, 500);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      const errorMessage: Message = {
+        id: idCounter.current++,
+        sender: "bot",
+        text: "Sorry, I couldn't process your message. Please try again.",
+        time: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -107,19 +131,47 @@ export default function Home() {
           }),
         };
         setMessages((prev) => [...prev, audioMessage]);
+        setIsLoading(true);
 
-        setTimeout(() => {
+        try {
+          const formData = new FormData();
+          formData.append("audio", audioBlob, "recording.webm");
+
+          const response = await axios.post(
+            `${API_BASE_URL}/api/voice`,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+
           const botMessage: Message = {
             id: idCounter.current++,
             sender: "bot",
-            text: "Ok",
+            text: response.data.response || "Ok",
             time: new Date().toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
             }),
           };
           setMessages((prev) => [...prev, botMessage]);
-        }, 500);
+        } catch (error) {
+          console.error("Error sending voice message:", error);
+          const errorMessage: Message = {
+            id: idCounter.current++,
+            sender: "bot",
+            text: "Sorry, I couldn't process your voice message. Please try again.",
+            time: new Date().toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          };
+          setMessages((prev) => [...prev, errorMessage]);
+        } finally {
+          setIsLoading(false);
+        }
 
         stream.getTracks().forEach((track) => track.stop());
       };
@@ -148,13 +200,13 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-gray-50 via-[var(--color-secondary-blue)]/10 to-gray-100">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-gray-50 via-blue-100/10 to-gray-100">
       {/* Navigation Bar */}
       <nav className="bg-white/80 backdrop-blur-sm border-b border-gray-200 flex-shrink-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-[var(--color-secondary-blue)] to-[var(--color-secondary-purple)] rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-xl flex items-center justify-center">
                 <span className="text-white font-bold text-lg">SC</span>
               </div>
               <div>
@@ -181,7 +233,7 @@ export default function Home() {
                           className="flex items-start space-x-3 opacity-0 animate-[fadeSlideIn_0.6s_ease-out_forwards]"
                           style={{ animationDelay: `${index * 0.02}s` }}
                         >
-                          <div className="w-8 h-8 bg-secondary-purple rounded-full flex-shrink-0"></div>
+                          <div className="w-8 h-8 bg-purple-500 rounded-full flex-shrink-0"></div>
                           <div className="flex flex-col space-y-1 max-w-lg">
                             <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
                               <p className="text-sm text-gray-800">
@@ -197,7 +249,7 @@ export default function Home() {
                           style={{ animationDelay: `${index * 0.02}s` }}
                         >
                           <div className="flex flex-col space-y-1 max-w-lg items-end">
-                            <div className="bg-gradient-to-br from-[var(--color-secondary-blue)] to-[var(--color-secondary-purple)] rounded-2xl rounded-tr-sm px-4 py-3 shadow-sm">
+                            <div className="bg-gradient-to-br from-blue-400 to-purple-500 rounded-2xl rounded-tr-sm px-4 py-3 shadow-sm">
                               {message.text ? (
                                 <p className="text-sm text-white">
                                   {message.text}
@@ -227,9 +279,23 @@ export default function Home() {
                               {message.time}
                             </span>
                           </div>
-                          <div className="w-8 h-8 bg-secondary-blue rounded-full flex-shrink-0"></div>
+                          <div className="w-8 h-8 bg-blue-400 rounded-full flex-shrink-0"></div>
                         </div>
                       )
+                    )}
+                    {isLoading && (
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-purple-500 rounded-full flex-shrink-0"></div>
+                        <div className="flex flex-col space-y-1 max-w-lg">
+                          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+                            <div className="flex space-x-2">
+                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
+                              <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     )}
                     <div ref={messagesEndRef} />
                   </div>
@@ -244,11 +310,13 @@ export default function Home() {
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyDown}
                       placeholder="Type your message here..."
-                      className="flex-1 outline-none text-sm bg-transparent placeholder:text-gray-400"
+                      disabled={isLoading}
+                      className="flex-1 outline-none text-sm bg-transparent placeholder:text-gray-400 disabled:opacity-50"
                     />
                     <button
                       onClick={handleSend}
-                      className="px-4 py-2 bg-gradient-to-r from-[var(--color-secondary-blue)] to-[var(--color-secondary-purple)] text-white rounded-xl font-medium hover:shadow-lg active:scale-95 transition-all"
+                      disabled={isLoading || !input.trim()}
+                      className="px-4 py-2 bg-gradient-to-r from-blue-400 to-purple-500 text-white rounded-xl font-medium hover:shadow-lg active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <svg
                         className="w-5 h-5"
@@ -269,13 +337,14 @@ export default function Home() {
               </div>
 
               {/* Mic Sidebar */}
-              <div className="hidden lg:flex bg-gradient-to-b from-[var(--color-secondary-blue)]/10 to-gray-50/30 border-l border-gray-100 p-6 items-center justify-center">
+              <div className="hidden lg:flex bg-gradient-to-b from-blue-400/10 to-gray-50/30 border-l border-gray-100 p-6 items-center justify-center">
                 <button
                   onClick={handleMicClick}
-                  className={`w-24 h-24 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center ${
+                  disabled={isLoading}
+                  className={`w-24 h-24 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed ${
                     isRecording
                       ? "bg-gradient-to-br from-red-400 to-red-500 animate-pulse"
-                      : "bg-gradient-to-br from-[var(--color-secondary-blue)] to-[var(--color-secondary-purple)]"
+                      : "bg-gradient-to-br from-blue-400 to-purple-500"
                   }`}
                 >
                   {isRecording ? (
@@ -380,7 +449,7 @@ export default function Home() {
         }
 
         .audio-player-wrapper .rhap_time {
-          margin-left: 6px; /* small space before duration */
+          margin-left: 6px;
           color: white;
           font-size: 12px;
         }
