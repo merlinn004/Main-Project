@@ -11,3 +11,4 @@ snn/multimodal-snn/model_state.pth
 Project/backend/model_state.pth 
 snn/multimodal-snn/data/embedded_data/embeddings/ 
 snn/multimodal-snn/data/features/*.pkl 
+snn/multimodal-snn/checkpoints/*

@@ -1,4 +1,0 @@
-[core]
-    remote = local-storage
-['remote "local-storage"']
-    url = C:/Users/Marc/Desktop/Programming/DVC_STORAGE/multimodal-snn
