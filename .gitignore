@@ -6,3 +6,8 @@ snn/multimodal-snn/src/model_training/__pycache__/*
 snn/multimodal-snn/src/feature_extraction/__pycache__/*
 snn/multimodal-snn/src/load_dataset/__pycache__/*
 
+snn/multimodal-snn/models/checkpoints/ 
+snn/multimodal-snn/model_state.pth 
+Project/backend/model_state.pth 
+snn/multimodal-snn/data/embedded_data/embeddings/ 
+snn/multimodal-snn/data/features/*.pkl 
