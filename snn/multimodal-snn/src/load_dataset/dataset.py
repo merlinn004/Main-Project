@@ -1,153 +1,155 @@
-import sys
-import io
-import os
-import csv
-import logging
-from typing import Dict, Any, List, Optional, Iterator
-
+import pickle
 import numpy as np
-from torch.utils.data import Dataset
-
-from src.feature_extraction.utils import sliding_window_audio, sliding_window_video_frames
-from src.feature_extraction.video_reader_parallel import ThreadedVideoReader, iter_frame_windows
-
-logger = logging.getLogger(__name__)
-if not logger.handlers:
-    h = logging.StreamHandler(sys.stdout)
-    f = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s", "%Y-%m-%d %H:%M:%S")
-    h.setFormatter(f)
-    logger.addHandler(h)
-    logger.setLevel(logging.INFO)
+import torch
+from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
+import snntorch.spikegen as spikegen
+from collections import Counter
+from sklearn.model_selection import train_test_split
 
 
-class AVPairSegmentsDataset(Dataset):
+# ------------------------------
+# Augmentation utilities
+# ------------------------------
+def temporal_jitter(spike_train, max_shift=2):
+    """Shift spikes randomly along time axis."""
+    shift = np.random.randint(-max_shift, max_shift + 1)
+    if shift > 0:
+        spike_train = np.pad(spike_train[:-shift], ((shift, 0), (0, 0)))
+    elif shift < 0:
+        spike_train = np.pad(spike_train[-shift:], ((0, -shift), (0, 0)))
+    return spike_train
+
+
+def add_noise(spike_train, noise_level=0.05):
+    """Add small random noise."""
+    noise = np.random.randn(*spike_train.shape) * noise_level
+    return np.clip(spike_train + noise, 0, 1)
+
+
+def random_mask(spike_train, mask_prob=0.1):
+    """Randomly mask a percentage of time steps."""
+    mask = np.ones(spike_train.shape[0], dtype=bool)
+    mask_indices = np.random.rand(spike_train.shape[0]) < mask_prob
+    mask[mask_indices] = False
+    spike_train[~mask] = 0
+    return spike_train, mask
+
+
+# ------------------------------
+# Dataset class
+# ------------------------------
+class MELDAudioSpikesAugmented(Dataset):
     """
-    Streams CSV by byte offsets. Returns raw audio windows and video frame lists per segment.
-    No embeddings or spikes here.
+    Simplified dataset with:
+    - Spike train generation
+    - Optional augmentation (jitter, noise, masking)
     """
+
     def __init__(
         self,
-        csv_file: str,
-        sr: int = 16000,
-        win_sec: float = 1.0,
-        hop_sec: float = 0.5,
-        max_segments: Optional[int] = None,
-        use_threaded_video: bool = True,
-        video_queue_size: int = 256,
-        audio_loader: str = "librosa",  # or "torchaudio"
-        verbose: bool = False,
+        features_path="data/features/audio_embeddings_feature_selection_emotion.pkl",
+        labels_path="data/features/data_emotion.p",
+        T=25,
+        spike_cap=1.0,
+        normalize=True,
+        augment=False,
     ):
-        self.csv_file = csv_file
-        self.sr = sr
-        self.default_win, self.default_hop = win_sec, hop_sec
-        self.max_segments = max_segments
-        self.use_threaded_video = use_threaded_video
-        self.video_queue_size = video_queue_size
-        self.audio_loader = audio_loader
-        self.verbose = verbose
+        super().__init__()
+        self.T = T
+        self.augment = augment
 
-        # Byte-offset index
-        self._fh = open(self.csv_file, "r", newline="", encoding="utf-8")
-        self._fh.seek(0)
-        self._header_line = next(self._fh)
-        self._offsets: List[int] = []
-        pos = self._fh.tell()
-        for _ in self._fh:
-            self._offsets.append(pos)
-            pos = self._fh.tell()
+        # ---- Load features ----
+        with open(features_path, "rb") as f:
+            train_emb, val_emb, test_emb = pickle.load(f)
+        merged_features = {**train_emb, **val_emb, **test_emb}
 
-        if verbose:
-            logger.setLevel(logging.DEBUG)
-        logger.info(f"Dataset (raw) init: rows={len(self._offsets)}, sr={sr}, win/hop={win_sec}/{hop_sec}")
+        # ---- Load labels ----
+        with open(labels_path, "rb") as f:
+            data_list = pickle.load(f)
+            utter_list = data_list[0]
+            label_idx = data_list[5]
 
-    def __len__(self) -> int:
-        return len(self._offsets)
+        feats, labels = [], []
+        for u in utter_list:
+            key = f"{u['dialog']}_{u['utterance']}"
+            if key in merged_features:
+                x = merged_features[key].astype(np.float32)
+                if normalize:
+                    x = x / (np.linalg.norm(x) + 1e-8)
+                x = np.clip(x, 0, spike_cap)
+                feats.append(x)
+                labels.append(label_idx[u["y"]])
 
-    def __del__(self):
-        try:
-            self._fh.close()
-        except Exception:
-            pass
+        self.X = np.stack(feats)
+        self.y = np.array(labels, dtype=np.int64)
+        print(f"Loaded simplified spike dataset: N={len(self.X)}, F={self.X.shape[1]}")
 
-    def _read_row(self, idx: int) -> Dict[str, Any]:
-        self._fh.seek(self._offsets[idx])
-        line = self._fh.readline()
-        reader = csv.DictReader(io.StringIO(self._header_line + line))
-        return next(reader)
+        # Class distribution
+        print("Class distribution:", Counter(self.y))
 
-    def _get_params(self, r: Dict[str, Any], side: int):
-        win = float(r.get(f"win_sec{side}", self.default_win))
-        hop = float(r.get(f"hop_sec{side}", self.default_hop))
-        cap = r.get(f"seg_aligned{side}")
-        seg_aligned = int(cap) if cap and cap.isdigit() else None
-        return win, hop, seg_aligned
+    def __len__(self):
+        return len(self.X)
 
-    def _load_audio_1d(self, path: str) -> np.ndarray:
-        if self.audio_loader == "torchaudio":
-            import torchaudio as ta, torchaudio.functional as AF
-            wav, sr0 = ta.load(path)
-            if wav.shape[0] > 1:
-                wav = wav.mean(0, keepdim=True)
-            if sr0 != self.sr:
-                wav = AF.resample(wav, sr0, self.sr)
-            return wav.squeeze(0).cpu().numpy().astype(np.float32)
-        else:
-            import librosa
-            y, _ = librosa.load(path, sr=self.sr, mono=True)
-            return y.astype(np.float32)
+    def __getitem__(self, idx):
+        x = self.X[idx]
+        y = self.y[idx]
 
-    def _audio_segments(self, path: str, win: float, hop: float) -> List[np.ndarray]:
-        y = self._load_audio_1d(path)
-        segs = sliding_window_audio(y, self.sr, win, hop)
-        return segs[: self.max_segments] if self.max_segments else segs
+        # Convert to spike train
+        S = spikegen.rate(x, num_steps=self.T).astype(np.float32)  # [T, F]
 
-    def _iter_video(self, path: str, win: float, hop: float) -> Iterator[List[np.ndarray]]:
-        if not self.use_threaded_video:
-            for frames in sliding_window_video_frames(path, win, hop):
-                yield frames
-            return
-        rdr = ThreadedVideoReader(path, queue_size=self.video_queue_size, drop_oldest=True).start()
-        try:
-            for frames in iter_frame_windows(rdr, win_sec=win, hop_sec=hop):
-                yield frames
-        finally:
-            rdr.stop()
+        mask = np.ones(self.T, dtype=bool)
+        if self.augment:
+            S = temporal_jitter(S)
+            S = add_noise(S)
+            S, mask = random_mask(S)
 
-    def _collect_video(self, path: str, win: float, hop: float, limit: Optional[int]) -> List[List[np.ndarray]]:
-        vids = []
-        for i, frames in enumerate(self._iter_video(path, win, hop)):
-            if not frames:
-                continue
-            vids.append(frames)
-            if limit and len(vids) >= limit:
-                break
-        return vids
+        return torch.tensor(S, dtype=torch.float32), torch.tensor(y, dtype=torch.long), torch.tensor(mask, dtype=torch.bool)
 
-    def _build_pair(self, a_path, v_path, win, hop, aligned, tag):
-        a_segs = self._audio_segments(a_path, win, hop)
-        limit = aligned if aligned else len(a_segs)
-        if self.max_segments:
-            limit = min(limit, self.max_segments)
-        v_segs = self._collect_video(v_path, win, hop, limit)
-        S = min(len(a_segs), len(v_segs), limit)
-        return a_segs[:S], v_segs[:S]
 
-    def __getitem__(self, idx: int) -> Dict[str, Any]:
-        r = self._read_row(idx)
-        a1p, v1p = r["audio_path1"], r["video_path1"]
-        a2p, v2p = r["audio_path2"], r["video_path2"]
-        y = int(r["label"])
-        w1, h1, s1 = self._get_params(r, 1)
-        w2, h2, s2 = self._get_params(r, 2)
+# ------------------------------
+# Loader creation with oversampling + split
+# ------------------------------
+def create_balanced_loader(
+    features_path,
+    labels_path,
+    batch_size=64,
+    augment=True,
+    T=25,
+    val_split=0.2,
+):
+    full_dataset = MELDAudioSpikesAugmented(
+        features_path=features_path,
+        labels_path=labels_path,
+        augment=augment,
+        T=T,
+    )
 
-        a1_raw, v1_raw = self._build_pair(a1p, v1p, w1, h1, s1, f"idx{idx}-p1")
-        a2_raw, v2_raw = self._build_pair(a2p, v2p, w2, h2, s2, f"idx{idx}-p2")
+    # ---- Train/Val split ----
+    train_idx, val_idx = train_test_split(
+        np.arange(len(full_dataset)),
+        test_size=val_split,
+        stratify=full_dataset.y,
+        random_state=42,
+    )
 
-        return {
-            "a1_raw": a1_raw,
-            "v1_raw": v1_raw,
-            "a2_raw": a2_raw,
-            "v2_raw": v2_raw,
-            "label": y,
-            "meta": {"a1": a1p, "v1": v1p, "a2": a2p, "v2": v2p},
-        }
+    train_X, val_X = full_dataset.X[train_idx], full_dataset.X[val_idx]
+    train_y, val_y = full_dataset.y[train_idx], full_dataset.y[val_idx]
+
+    # ---- Create datasets ----
+    train_set = MELDAudioSpikesAugmented(features_path, labels_path, T, augment=True)
+    val_set = MELDAudioSpikesAugmented(features_path, labels_path, T, augment=False)
+    train_set.X, train_set.y = train_X, train_y
+    val_set.X, val_set.y = val_X, val_y
+
+    # ---- Oversampling to fix imbalance ----
+    class_counts = Counter(train_set.y)
+    weights = [1.0 / class_counts[c] for c in train_set.y]
+    sampler = WeightedRandomSampler(weights, num_samples=len(train_set.y), replacement=True)
+
+    print("Train class distribution:", Counter(train_set.y))
+    print("Val class distribution:", Counter(val_set.y))
+
+    train_loader = DataLoader(train_set, batch_size=batch_size, sampler=sampler, drop_last=True)
+    val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, drop_last=False)
+
+    return train_loader, val_loader
